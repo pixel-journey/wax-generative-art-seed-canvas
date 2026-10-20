@@ -1,0 +1,26 @@
+name: wax-generative-art-seed-canvas
+trust_label: educational-reference
+version: 0.1.0
+purpose: >
+  Deterministic picture parameters and draw commands from a hex transaction id.
+invariants:
+  - Math.random is not used.
+  - 0x prefix and letter case do not change params.
+  - Circle count equals rings. Line count equals spokes.
+  - paintScene replays sceneFromParams and adds one clear.
+  - No network calls in the seed module.
+do_not:
+  - Do not claim this is the official media of an existing collection.
+  - Do not treat asset id and mint transaction id as interchangeable.
+  - Do not snapshot only a GPU raster in CI.
+entrypoints:
+  logic: examples/seed.ts
+  tests: examples/seed.test.ts
+  canvas: examples/CanvasArt.tsx
+  demo: examples/Demo.tsx
+commands:
+  test: npm test
+  demo: npm run dev
+live_data:
+  status: untested
+  notes: Mint transaction id lookup is not implemented.

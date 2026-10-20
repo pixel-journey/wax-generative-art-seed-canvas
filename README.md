@@ -1,142 +1,112 @@
 # wax-generative-art-seed-canvas
 
-**Generative Art Seed Canvas**
+**Trust label:** `educational-reference`  
+**Status:** Private. Seed normalization, parameters, and the paint command list are tested offline.
 
-A pure HTML5 canvas wrapper that uses an NFT's unique mint transaction hash as a deterministic seed to render variable, high-performance generative art. Creates unique, reproducible visuals directly from on-chain data without any backend or external assets.
+One-sentence goal: turn a hex transaction id into a small picture that is the same in every browser, without `Math.random`, IPFS, or a backend.
 
-**Status:** 🔒 Private (In Development) | Target: Public when v1 complete  
-**Category:** Spatial Audiovisual Web & Interactive Multi-Media Players  
-**Parent Catalog:** [pixel-journey/wax-ecosystem-blueprint-catalog](https://github.com/pixel-journey/wax-ecosystem-blueprint-catalog)
+Parent catalog: [pixel-journey/wax-ecosystem-blueprint-catalog](https://github.com/pixel-journey/wax-ecosystem-blueprint-catalog)
 
-> Built to the same high standard of educational excellence, production readiness, and WAX best practices as the [gkniftyheads-tracker](https://github.com/henrikpiga/gkniftyheads-tracker).
-
----
-
-## Quick Start
+## Quick start
 
 ```bash
 git clone https://github.com/pixel-journey/wax-generative-art-seed-canvas.git
 cd wax-generative-art-seed-canvas
 npm install
+npm test
 npm run dev
 ```
 
-The demo instantly generates unique art from sample NFT mint hashes. Connect a wallet to generate from your own assets.
+Paste another 64-character hex string. The canvas redraws once. There is no animation.
 
----
+## Why this exists
 
-## Why This Blueprint?
+“Generative NFT” demos often hide a `random()` call or a server seed. A mint transaction id is already unique and public. Using it as a seed is easy to explain and easy to test: same input, same scene.
 
-NFTs often lack dynamic, personalized visuals beyond static images. This tool turns the immutable mint transaction hash into a seed for beautiful, unique generative art that is verifiably tied to the on-chain asset — no IPFS, no external files, fully reproducible.
+This picture is **not** automatically the media for an AtomicAssets template. It is a renderer you can choose to attach.
 
----
+## Concepts
 
-## Architecture & Data Flow
+| Piece | Rule |
+| --- | --- |
+| Normalize | Trim, strip one `0x`, lowercase, require 16–64 hex chars, pad to 64 |
+| Params | Five `uint32` slices pick hue, rings (4–12), spokes (5–16), saturation, lightness, twist |
+| Scene | Circles and lines with coordinates rounded to 2 decimals |
+| Paint | `paintScene` replays that list onto any tiny canvas-like interface |
 
+`Math.cos` / `Math.sin` are deterministic for the same inputs in JS. The tests lock the command list, not a PNG hash (canvas anti-aliasing can differ by GPU).
+
+## Patterns
+
+**Simple.** `paramsFromSeed(txId)` and show the numbers.
+
+**Recommended.** `sceneFromParams(params, size)` and draw it. The React demo uses a real `<canvas>` plus a text caption so the seed is not only visual.
+
+**Advanced.** Implement `PaintContext` for SVG if you need a file export without reading pixels back. The command list is the interchange format.
+
+## Demo
+
+Default seed `a11ce000c0ffee00…`. The caption prints hue, ring count, and spoke count. An invalid string shows the parser error and does not clear a previous successful interpretation inside the canvas component — the alert replaces the canvas.
+
+## Integration
+
+```ts
+import { paintScene, paramsFromSeed } from "./examples/seed";
+
+const params = paramsFromSeed(asset.mintTxId);
+paintScene(yourCanvasAdapter, params, 640);
 ```
-Fetch NFT Mint Transaction Hash (AtomicAssets)
-       ↓
-Use Hash as Deterministic Seed
-       ↓
-Generate Art Parameters (colors, shapes, patterns)
-       ↓
-Render on HTML5 Canvas
-  - High-performance drawing loop
-  - Interactive parameters (optional overrides)
-  - Export as image or SVG
-```
 
-All generation is client-side and deterministic.
+Where to get `mintTxId` on WAX: AtomicAssets asset objects often include a `minted_at_time` but the **transaction id** may require a Hyperion lookup around the mint action. That lookup is **not** implemented or verified here. Until it is, pass a hash you already have.
 
----
+## Best practices and anti-patterns
 
-## Complete Repository Structure
+Do:
 
-Follows Pixel Journey high standards.
+- Pad and lowercase before slicing so `0xABC` and `abc` cannot diverge.
+- Round coordinates before compare or snapshot.
+- Describe the picture in text.
 
-Key parts:
-- `app/` — Main canvas interface
-- `components/` — GenerativeCanvas, SeedControls, ExportPanel, AssetSelector
-- `hooks/` — useMintSeed, useArtGenerator
-- `lib/wax/` — seed-from-hash.ts, art-parameters.ts, canvas-renderer.ts
-- `public/mock-data/` — Sample NFT mint hashes and generated art
-- `.github/workflows/` — CI automation
+Do not:
 
-Detailed comments on deterministic seeding and canvas rendering techniques.
+- Seed with `Date.now()` or `Math.random()` and still say “on-chain.”
+- Claim the asset id and the mint transaction id are the same field.
+- Hash the string with a locale-sensitive formatter.
+- Animate on a loop unless you also honor `prefers-reduced-motion`. This demo does not animate.
 
----
+## Edge cases
 
-## Key WAX Concepts Explained
+| Input | Result |
+| --- | --- |
+| `0x` + 64 hex | Same params as bare lowercase |
+| 16 hex chars | Pad start with zeros, then slice |
+| 15 hex chars, or non-hex | Throw |
+| `size < 32` | Throw |
+| Same params painted twice | Identical command list |
 
-- **Mint Transaction Hash as Seed**: Using the immutable tx hash from asset creation as a reliable, on-chain random seed.
-- **Deterministic Generation**: Same seed always produces the same art (verifiable on-chain tie).
-- **Client-Side Canvas**: High-performance generative art entirely in the browser, no external dependencies.
-- **AtomicAssets Integration**: Fetching the mint tx hash directly from public APIs.
+## Safety and accessibility
 
-This is **WAX-primary** (AtomicAssets) but the generative seeding and canvas rendering pattern is portable to any chain with immutable mint data.
+No wallet. Canvas is `role="img"` with a caption that states the parameters. Contrast of the lines depends on the seed; the caption does not. Not an axe-certified audit.
 
----
+## Antelope portability
 
-## Design Specifications
+Any chain with a hex transaction id can use the same functions. Only the lookup of “which tx minted this asset” is WAX/AtomicAssets-specific.
 
-- Clean, modern canvas with subtle pixel-art influences where appropriate
-- Smooth, high-performance rendering
-- Optional interactive controls for live parameter tweaking
-- Responsive canvas that adapts to screen size
-- Accessible controls and export options
+## Verification
 
-Aligned with Pixel Journey Design System.
+Unit tests cover normalization, stability, ranges, shape counts, and a fake painter. No live mint lookup. No screenshot hash.
 
----
+## Related
 
-## Technical Architecture & Best Practices
-
-- **Stack**: Next.js 15, TypeScript, Tailwind + shadcn/ui, HTML5 Canvas
-- **Data**: AtomicAssets public API for mint tx hash
-- **Performance**: Optimized canvas drawing loop; efficient parameter generation
-- **Demo Mode**: Full interactive canvas with sample seeds
-
-See catalog standards for WAX rate limiting and public data best practices.
-
----
-
-## Demo & Usage
-
-- Explore pre-loaded sample NFT seeds and generated art
-- Connect wallet to generate from your own assets
-- Tweak parameters live (if enabled)
-- Export art as PNG or SVG
-- Share seeds or generated outputs
-
-Designed for immediate creative insight.
-
----
-
-## Customization
-
-- Adjust art generation algorithms and parameter ranges
-- Add new visual styles or themes
-- Integrate with other media or NFT tools in the catalog
-- Customize canvas behavior and export formats
-
----
+- `wax-ipfs-gateway-speed-test-matrix` — when the art is a CID instead of a seed
+- `wax-atomic-template-and-schema-explorer`
 
 ## Roadmap
 
-- v1: Core seed-to-canvas generation + interactive demo
-- v1.1: Advanced parameter controls and multiple art styles
-- Future: Deeper integration with spatial audio, 3D, and metaverse gallery tools
+- Fixture: one real AtomicAssets asset JSON plus the tx id field you actually found
+- Optional SVG export from the same command list
+- Still no randomness
 
----
+## License
 
-## Contributing & Credits
-
-Built with care for creative on-chain experiences on WAX.
-
-MIT License.
-
-Following the production-quality educational standards from the gkniftyheads-tracker.
-
----
-
-*Pixel Journey — Making Web3 interfaces pixel-perfect and delightful.*
+MIT.
