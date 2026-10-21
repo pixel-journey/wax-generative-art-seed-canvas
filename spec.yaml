@@ -14,10 +14,10 @@ do_not:
   - Do not treat asset id and mint transaction id as interchangeable.
   - Do not snapshot only a GPU raster in CI.
 entrypoints:
-  logic: examples/seed.ts
-  tests: examples/seed.test.ts
-  canvas: examples/CanvasArt.tsx
-  demo: examples/Demo.tsx
+  logic: src/seed.ts
+  tests: src/seed.test.ts
+  canvas: src/CanvasArt.tsx
+  demo: src/Demo.tsx
 commands:
   test: npm test
   demo: npm run dev

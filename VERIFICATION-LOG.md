@@ -5,7 +5,7 @@
 
 | Claim | Evidence | State |
 | --- | --- | --- |
-| Case and 0x do not change the seed | `examples/seed.test.ts` | verified (unit) |
+| Case and 0x do not change the seed | `src/seed.test.ts` | verified (unit) |
 | Different hashes are not forced to the same hue/rings/spokes together | same | verified (unit) |
 | Ranges for hue, rings, spokes | same | verified (unit) |
 | Scene counts match rings and spokes | same | verified (unit) |

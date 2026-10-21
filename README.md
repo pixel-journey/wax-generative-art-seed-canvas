@@ -51,7 +51,7 @@ Default seed `a11ce000c0ffee00…`. The caption prints hue, ring count, and spok
 ## Integration
 
 ```ts
-import { paintScene, paramsFromSeed } from "./examples/seed";
+import { paintScene, paramsFromSeed } from "./src/seed";
 
 const params = paramsFromSeed(asset.mintTxId);
 paintScene(yourCanvasAdapter, params, 640);
@@ -110,3 +110,10 @@ Unit tests cover normalization, stability, ranges, shape counts, and a fake pain
 ## License
 
 MIT.
+
+
+## Queries and unsigned transactions
+
+`src/api.ts` builds the HTTP requests. `src/usecases.ts` is the worked case for this repo: those requests, and the unsigned transaction when the feature actually has an action. `executed` is false. Nothing is sent.
+
+The engines used to sit in `examples/`. GitHub treats that directory as documentation, so the language bar showed the stylesheet and almost none of the TypeScript.
