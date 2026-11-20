@@ -1,7 +1,7 @@
 # Art from a transaction id — the same string, the same scene
 
 > **Trust:** `educational-reference`  
-> **Catalog:** [wax-ecosystem-blueprint-catalog](https://github.com/pixel-journey/wax-ecosystem-blueprint-catalog)
+> **Catalog:** `wax-ecosystem-blueprint-catalog` (private index; not this public course)
 
 **One-sentence goal:** Teach a pure seed: normalize 16–64 hex, derive params, emit a scene of circles and lines, and paint the same command list twice. No `Math.random`. No chain read.
 

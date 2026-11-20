@@ -18,6 +18,24 @@
 ```ts
 normalizeTxHash(`0x${HASH.toUpperCase()}`)  // lowercase, no 0x, 64 chars
 paramsFromSeed(HASH) === paramsFromSeed(`0X${HASH}`)
+
+## The locked seed
+
+`HASH_A` is `a11ce000c0ffee00` repeated. `paramsFromSeed(HASH_A)` is locked:
+
+| Field | Result |
+| --- | --- |
+| hue | `128` |
+| rings | `8` |
+| spokes | `13` |
+| saturation | `72` |
+| lightness | `46` |
+| twist | `5.64` |
+
+A 16-hex string is padded on the left with zeros to 64. `abcdabcdabcdabcd` becomes 48 zeros and then those 16 characters. Empty, non-hex, and fewer than 16 hex characters throw.
+
+Hue is `uint32 % 360`. Rings are `4 + (uint32 % 9)`. Spokes are `5 + (uint32 % 12)`. The ranges in the older test are the formula's bounds. The row above is this seed.
+
 ```
 
 Accepted: 16–64 hex characters, optional `0x`, any case. Short hex is padded to 64 with leading zeros. Empty, non-hex, and strings under 16 hex characters throw.

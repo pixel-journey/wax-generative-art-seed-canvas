@@ -7,7 +7,9 @@ const HASH_B = "b22df111d100ff11b22df111d100ff11b22df111d100ff11b22df111d100ff11
 describe("normalizeTxHash", () => {
   it("accepts 0x, uppercase, and short hex by padding", () => {
     expect(normalizeTxHash(`0x${HASH_A.toUpperCase()}`)).toBe(HASH_A);
-    expect(normalizeTxHash("abcdabcdabcdabcd")).toHaveLength(64);
+    expect(normalizeTxHash("abcdabcdabcdabcd")).toBe(
+      "000000000000000000000000000000000000000000000000abcdabcdabcdabcd",
+    );
   });
 
   it("rejects empty and non-hex", () => {
@@ -30,6 +32,7 @@ describe("paramsFromSeed", () => {
 
   it("stays inside the documented ranges", () => {
     const params = paramsFromSeed(HASH_A);
+    expect(params).toMatchObject({ hue: 128, rings: 8, spokes: 13, saturation: 72, lightness: 46, twist: 5.64 });
     expect(params.hue).toBeGreaterThanOrEqual(0);
     expect(params.hue).toBeLessThan(360);
     expect(params.rings).toBeGreaterThanOrEqual(4);
